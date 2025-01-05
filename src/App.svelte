@@ -80,15 +80,14 @@
   <div class="flex justify-between items-center mb-4">
     <div>
       <h2 class="text-xl font-bold text-black">Cash Receipt</h2>
-      <p class="text-sm text-blue-500">#<span contenteditable bind:textContent={pen.no}></span></p>
+      <p class="text-blue-500">#<span contenteditable bind:textContent={pen.no}></span></p>
     </div>
     <div>
-      <div class="border-b-2 border-blue-500 font-semibold text-xl" contenteditable bind:textContent={pen.to}>
-      </div>
+      <div class="border-b-2 border-blue-500 font-semibold text-xl" contenteditable bind:textContent={pen.to}></div>
     </div>
   </div>
 
-  <div class="mb-4 text-sm">
+  <div class="mb-4">
     <div class="flex justify-between">
       <span class="">Date:</span>
       <span class="" contenteditable bind:textContent={pen.date}></span>
@@ -99,7 +98,7 @@
     </div>
   </div>
 
-  <div class="border-t border-b border-blue-400 py-3 my-3 text-sm">
+  <div class="border-t border-b border-blue-400 py-3 my-3">
     <div class="flex justify-between mb-1">
       <span class="">Description:</span>
       <span class="" contenteditable bind:textContent={pen.desc}></span>
@@ -116,7 +115,7 @@
     </div>
   </div>
 
-  <div class="text-sm font-medium">
+  <div class="font-medium">
     <div class="flex justify-between">
       <span class="">Tax (<span contenteditable onfocus={(e) => {
 				e.target.textContent = pen.vat
@@ -133,7 +132,7 @@
     </div>
   </div>
 
-  <div class="mt-6 text-center text-xs text-blue-500">
+  <div class="mt-6 text-center text-blue-500">
     <p>Thank you for your business!</p>
     <p>123 Business Ave, Anytown</p>
   </div>
