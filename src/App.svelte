@@ -1,11 +1,36 @@
 <script>
 	import { onMount } from "svelte"
 
+	const bund = {
+		en: {
+			headline: 'Cash Receipt',
+			date: 'Date',
+			from: 'Received From',
+			desc: 'Description',
+			amount: 'Amount',
+			tax: 'Tax',
+			total: 'Total',
+			thank: 'Thank you for your business!',
+		},
+		th: {
+			headline: 'ใบเสร็จรับเงิน',
+			date: 'วันที่',
+			from: 'รับเงินจาก',
+			desc: 'รายละเอียด',
+			amount: 'จำนวน',
+			tax: 'ภาษี',
+			total: 'รวมทั้งสิ้น',
+			thank: 'ขอบคุณสำหรับการอุดหนุน!',
+		},
+	}
+
   let pen = $state({
+		lang: 'en',
     no: '20231027-001',
     date: 'October 27, 2023',
     from: 'Jane Doe',
     to: 'My company',
+		toAddress: '123 Business Ave, Anytown',
     desc: 'Consultation Services',
     amount: 150.00,
     vat: 0.07,
@@ -14,12 +39,19 @@
 
 	let vat = $derived(pen.amount * (+pen.vat))
 	let total = $derived(pen.amount + vat)
+	let tape = $derived(bund[pen.lang] || bund.en)
 
-	function money (value, option) {
+	function money (value) {
 		if (!isNaN(value)) {
-			value = value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2, ...option })
+			value = value.toLocaleString(pen.lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 		}
 		return value
+	}
+	function percent (value) {
+		if (value % 1 !== 0) { // have decimal
+			value = value.toFixed(2)
+		}
+		return value + '%'
 	}
 
 	function finish () {
@@ -33,7 +65,7 @@
     navigator.clipboard.writeText("https://codepen.io/zummon/full/ogvoyzN?" + pass.toString())
   }
 	onMount(() => {
-		const pass = new URLSearchParams(window.location.search);
+		const pass = new URLSearchParams(window.location.search)
 		for (const key in pen) {
 			let value = pass.get(key)
 			if (value) {
@@ -70,6 +102,13 @@
 	<!-- <div class="">
 		<input class="" type="color" bind:value={pen.theme}>
 	</div> -->
+	<div class="">
+		<select class="text-teal-500 rounded-lg shadow-md appearance-none uppercase py-1 px-2 cursor-pointer" bind:value={pen.lang}>
+			{#each Object.keys(bund) as value}
+				<option>{value}</option>
+			{/each}
+		</select>
+	</div>
 </div>
 
 <div class="mt-5 print:hidden text-center">
@@ -79,7 +118,7 @@
 <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md shadow-blue-200 mt-3 border-t-8 border-blue-500">
   <div class="flex justify-between items-center mb-4">
     <div>
-      <h2 class="text-xl font-bold text-black">Cash Receipt</h2>
+      <h2 class="text-xl font-bold text-black">{tape.headline}</h2>
       <p class="text-blue-500">#<span contenteditable bind:textContent={pen.no}></span></p>
     </div>
     <div>
@@ -89,22 +128,22 @@
 
   <div class="mb-4">
     <div class="flex justify-between">
-      <span class="">Date:</span>
+      <span class="">{tape.date}:</span>
       <span class="" contenteditable bind:textContent={pen.date}></span>
     </div>
     <div class="flex justify-between">
-      <span class="">Received From:</span>
+      <span class="">{tape.from}:</span>
       <span class="" contenteditable bind:textContent={pen.from}></span>
     </div>
   </div>
 
   <div class="border-t border-b border-blue-400 py-3 my-3">
     <div class="flex justify-between mb-1">
-      <span class="">Description:</span>
+      <span class="">{tape.desc}:</span>
       <span class="" contenteditable bind:textContent={pen.desc}></span>
     </div>
     <div class="flex justify-between">
-      <span class="">Amount:</span>
+      <span class="">{tape.amount}:</span>
       <span class="" contenteditable onfocus={(e) => {
 				e.target.textContent = pen.amount
 			}} oninput={(e) => {
@@ -117,24 +156,24 @@
 
   <div class="font-medium">
     <div class="flex justify-between">
-      <span class="">Tax (<span contenteditable onfocus={(e) => {
+      <span class="">{tape.tax} (<span contenteditable onfocus={(e) => {
 				e.target.textContent = pen.vat
 			}} oninput={(e) => {
 				pen.vat = +e.target.textContent
 			}} onblur={(e) => {
-				e.target.textContent = money(pen.vat * 100) + '%'
-			}}>{money(pen.vat * 100)}%</span>):</span>
+				e.target.textContent = percent(pen.vat * 100)
+			}}>{percent(pen.vat * 100)}</span>):</span>
       <span class="">{money(vat)}</span>
     </div>
     <div class="flex justify-between font-bold text-lg mt-2">
-      <span class="text-black">Total:</span>
+      <span class="text-black">{tape.total}:</span>
       <span class="text-black">{money(total)}</span>
     </div>
   </div>
 
   <div class="mt-6 text-center text-blue-500">
-    <p>Thank you for your business!</p>
-    <p>123 Business Ave, Anytown</p>
+    <p>{tape.thank}</p>
+    <p contenteditable bind:textContent={pen.toAddress}></p>
   </div>
 </div>
 
