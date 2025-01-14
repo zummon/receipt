@@ -3,7 +3,7 @@
 
 	const bund = {
 		en: {
-			headline: 'Cash Receipt',
+			headline: 'Receipt',
 			date: 'Date',
 			from: 'Received From',
 			desc: 'Description',
@@ -11,6 +11,7 @@
 			tax: 'Tax',
 			total: 'Total',
 			thank: 'Thank you for your business!',
+			sign: "Signature",
 		},
 		th: {
 			headline: 'ใบเสร็จรับเงิน',
@@ -21,6 +22,7 @@
 			tax: 'ภาษี',
 			total: 'รวมทั้งสิ้น',
 			thank: 'ขอบคุณสำหรับการอุดหนุน!',
+			sign: 'ลายเซ็นผู้รับเงิน',
 		},
 	}
 
@@ -115,14 +117,15 @@
 	Select text you want to edit then type directly
 </div>
 
-<div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md shadow-blue-200 mt-3 border-t-8 border-blue-500">
+<div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md shadow-blue-200 mt-3 border-t-8 border-blue-500" style='font-family: "Cabin", serif;'>
   <div class="flex justify-between items-center mb-4">
     <div>
       <h2 class="text-xl font-bold text-black">{tape.headline}</h2>
       <p class="text-blue-500">#<span contenteditable bind:textContent={pen.no}></span></p>
     </div>
-    <div>
-      <div class="border-b-2 border-blue-500 font-semibold text-xl" contenteditable bind:textContent={pen.to}></div>
+    <div class="">
+      <h3 class="border-b-2 border-blue-500 font-semibold text-xl w-fit ml-auto" contenteditable bind:textContent={pen.to}></h3>
+			<p class="text-sm" contenteditable bind:textContent={pen.toAddress}></p>
     </div>
   </div>
 
@@ -171,9 +174,11 @@
     </div>
   </div>
 
-  <div class="mt-6 text-center text-blue-500">
-    <p>{tape.thank}</p>
-    <p contenteditable bind:textContent={pen.toAddress}></p>
+  <div class="mt-6 text-center">
+		<p class="">{tape.sign}</p>
+		<br>
+		<br>
+    <p class="text-blue-500 border-t border-blue-500 w-fit mx-auto pt-1">{tape.thank}</p>
   </div>
 </div>
 
