@@ -1,30 +1,6 @@
 <script>
 	import { onMount } from "svelte"
-
-	const bund = {
-		en: {
-			headline: 'Receipt',
-			date: 'Date',
-			from: 'Received From',
-			desc: 'Description',
-			amount: 'Amount',
-			tax: 'Tax',
-			total: 'Total',
-			thank: 'Thank you for your business!',
-			sign: "Signature",
-		},
-		th: {
-			headline: 'ใบเสร็จรับเงิน',
-			date: 'วันที่',
-			from: 'รับเงินจาก',
-			desc: 'รายละเอียด',
-			amount: 'จำนวน',
-			tax: 'ภาษี',
-			total: 'รวมทั้งสิ้น',
-			thank: 'ขอบคุณสำหรับการอุดหนุน!',
-			sign: 'ลายเซ็นผู้รับเงิน',
-		},
-	}
+	import { bund } from './data'
 
   let pen = $state({
 		lang: 'en',
@@ -105,7 +81,7 @@
 		<input class="" type="color" bind:value={pen.theme}>
 	</div> -->
 	<div class="">
-		<select class="text-teal-500 rounded-lg shadow-md appearance-none uppercase py-1 px-2 cursor-pointer" bind:value={pen.lang}>
+		<select class="text-center text-teal-500 rounded-lg shadow-md appearance-none uppercase py-1 px-2 cursor-pointer" bind:value={pen.lang}>
 			{#each Object.keys(bund) as value}
 				<option>{value}</option>
 			{/each}
