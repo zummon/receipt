@@ -12,8 +12,10 @@
     desc: 'Consultation Services',
     amount: 150.00,
     vat: 0.07,
-		// theme: '',
   })
+	let store = $state({
+		logo: '',
+	}) 
 
 	let vat = $derived(pen.amount * (+pen.vat))
 	let total = $derived(pen.amount + vat)
@@ -32,6 +34,20 @@
 		return value + '%'
 	}
 
+	function upload (e, ) {
+		const file = e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.addEventListener('load', () => {
+				store.logo = reader.result;
+				localStorage.setItem("logo", store.logo)
+			});
+			reader.readAsDataURL(file);
+		} else {
+			store.logo = '';
+			localStorage.setItem("logo", "")
+		}
+	}
 	function finish () {
     const pass = new URLSearchParams()
 		for (const key in pen) {
@@ -43,7 +59,7 @@
     navigator.clipboard.writeText("https://codepen.io/zummon/full/ogvoyzN?" + pass.toString())
   }
 	onMount(() => {
-		const pass = new URLSearchParams(window.location.search)
+		const pass = new URLSearchParams(location.search)
 		for (const key in pen) {
 			let value = pass.get(key)
 			if (value) {
@@ -52,6 +68,10 @@
 				}
 				pen[key] = value
 			}
+		}
+		const logo = localStorage.getItem("logo")
+		if (logo) {
+			store.logo = logo
 		}
 	})
 </script>
@@ -90,11 +110,21 @@
 </div>
 
 <div class="mt-5 print:hidden text-center">
-	Select text you want to edit then type directly
+	Select text you want to edit then type directly.<br>
+	Click the logo to upload yours
 </div>
 
 <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md shadow-blue-200 mt-3 border-t-8 border-blue-500" style='font-family: "Cabin", serif;'>
-  <div class="flex justify-between items-center mb-4">
+  <div class="mx-auto w-fit">
+		<label class="cursor-pointer" title="Upload your logo">
+			<input class="hidden" type="file" onchange={(e) => {
+				upload(e)
+			}}>
+			<img class="max-h-20 max-w-full {store.logo ? '' : 'print:hidden'}" src={store.logo} alt="Logo">
+		</label>
+	</div>
+
+	<div class="flex justify-between items-center mb-4">
     <div>
       <h2 class="text-xl font-bold text-black">{tape.headline}</h2>
       <p class="text-blue-500">#<span contenteditable bind:textContent={pen.no}></span></p>
