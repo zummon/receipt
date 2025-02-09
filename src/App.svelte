@@ -127,33 +127,33 @@
 	<div class="flex justify-between items-center mb-4">
     <div>
       <h2 class="text-xl font-bold text-black">{tape.headline}</h2>
-      <p class="text-blue-500">#<span contenteditable bind:textContent={pen.no}></span></p>
+      <p class="text-blue-500">#<span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.no}></span></p>
     </div>
     <div class="">
-      <h3 class="border-b-2 border-blue-500 font-semibold text-xl w-fit ml-auto" contenteditable bind:textContent={pen.to}></h3>
-			<p class="text-sm" contenteditable bind:textContent={pen.toAddress}></p>
+      <h3 class="border-b-2 border-blue-500 font-semibold text-xl w-fit ml-auto bg-yellow-200 print:bg-transparent" contenteditable bind:textContent={pen.to}></h3>
+			<p class="text-sm bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.toAddress}></p>
     </div>
   </div>
 
   <div class="mb-4">
     <div class="flex justify-between">
       <span class="">{tape.date}:</span>
-      <span class="" contenteditable bind:textContent={pen.date}></span>
+      <span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.date}></span>
     </div>
     <div class="flex justify-between">
       <span class="">{tape.from}:</span>
-      <span class="" contenteditable bind:textContent={pen.from}></span>
+      <span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.from}></span>
     </div>
   </div>
 
   <div class="border-t border-b border-blue-400 py-3 my-3">
     <div class="flex justify-between mb-1">
       <span class="">{tape.desc}:</span>
-      <span class="" contenteditable bind:textContent={pen.desc}></span>
+      <span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.desc}></span>
     </div>
     <div class="flex justify-between">
       <span class="">{tape.amount}:</span>
-      <span class="" contenteditable onfocus={(e) => {
+      <span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
 				e.target.textContent = pen.amount
 			}} oninput={(e) => {
 				pen.amount = +e.target.textContent
@@ -165,7 +165,7 @@
 
   <div class="font-medium">
     <div class="flex justify-between">
-      <span class="">{tape.tax} (<span contenteditable onfocus={(e) => {
+      <span class="">{tape.tax} (<span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
 				e.target.textContent = pen.vat
 			}} oninput={(e) => {
 				pen.vat = +e.target.textContent
@@ -188,4 +188,3 @@
   </div>
 </div>
 
-<!-- <pre class="w-fit mx-auto print:hidden">{JSON.stringify(pen, null, 2)}</pre> -->
