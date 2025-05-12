@@ -1,6 +1,84 @@
 <script>
 	import { onMount } from "svelte"
-	import { bund } from './data'
+	const bund = {
+		en: {
+			headline: 'Receipt',
+			date: 'Date',
+			from: 'Received From',
+			desc: 'Description',
+			amount: 'Amount',
+			tax: 'Tax',
+			total: 'Total',
+			thank: 'Thank you for your business!',
+			sign: "Signature",
+		},
+		th: {
+			headline: 'ใบเสร็จรับเงิน',
+			date: 'วันที่',
+			from: 'รับเงินจาก',
+			desc: 'รายละเอียด',
+			amount: 'จำนวน',
+			tax: 'ภาษี',
+			total: 'รวมทั้งสิ้น',
+			thank: 'ขอบคุณสำหรับการอุดหนุน!',
+			sign: 'ลายเซ็นผู้รับเงิน',
+		},
+		"es": { // Spanish
+			"headline": "Recibo",
+			"date": "Fecha",
+			"from": "Recibido De",
+			"desc": "Descripción",
+			"amount": "Cantidad",
+			"tax": "Impuesto",
+			"total": "Total",
+			"thank": "¡Gracias por su compra!", // Or "¡Gracias por su negocio!"
+			"sign": "Firma"
+		},
+		"fr": { // French
+			"headline": "Reçu",
+			"date": "Date",
+			"from": "Reçu De",
+			"desc": "Description",
+			"amount": "Montant",
+			"tax": "Taxe", // Or "Impôt" (more formal)
+			"total": "Total",
+			"thank": "Merci pour votre achat !", // Or "Merci de votre confiance !"
+			"sign": "Signature"
+		},
+		"de": { // German
+			"headline": "Quittung",
+			"date": "Datum",
+			"from": "Erhalten Von",
+			"desc": "Beschreibung",
+			"amount": "Betrag",
+			"tax": "Steuer",
+			"total": "Gesamt",
+			"thank": "Vielen Dank für Ihren Einkauf!",
+			"sign": "Unterschrift"
+		},
+		"ja": { // Japanese
+			"headline": "領収書 (Ryōshūsho)",
+			"date": "日付 (Hizuke)",
+			"from": "受取人 (Uketorinin)", // Or "受領者 (Juryōsha)"
+			"desc": "説明 (Setsumei)",
+			"amount": "金額 (Kingaku)",
+			"tax": "税 (Zei)",
+			"total": "合計 (Gōkei)",
+			"thank": "ご利用ありがとうございます (Go riyō arigatō gozaimasu)", // More polite: 誠にありがとうございます (Makoto ni arigatō gozaimasu)
+			"sign": "署名 (Shomei)"
+		},
+		"zh-CN": { // Chinese (Simplified)
+			"headline": "收据 (Shōujù)",
+			"date": "日期 (Rìqī)",
+			"from": "收款人 (Shōukuǎn rén)", // Or "收到方 (Shōudào fāng)"
+			"desc": "描述 (Miáoshù)",
+			"amount": "金额 (Jīn'é)",
+			"tax": "税 (Shuì)",
+			"total": "总计 (Zǒngjì)",
+			"thank": "感谢您的惠顾！(Gǎnxiè nín de huìgù!)", // Or "谢谢您的光临！(Xièxie nín de guānglín!)"
+			"sign": "签名 (Qiānmíng)"
+		}
+	}
 
   let pen = $state({
 		lang: 'en',
@@ -15,7 +93,8 @@
   })
 	let store = $state({
 		logo: '',
-	}) 
+	})
+	let savedUrl = $state('')
 
 	let vat = $derived(pen.amount * (+pen.vat))
 	let total = $derived(pen.amount + vat)
@@ -56,7 +135,8 @@
 				pass.append(key, value)
 			}
 		}
-    navigator.clipboard.writeText("https://codepen.io/zummon/full/ogvoyzN?" + pass.toString())
+		savedUrl = "https://codepen.io/zummon/full/ogvoyzN?" + pass.toString()
+    navigator.clipboard.writeText(savedUrl)
   }
 	onMount(() => {
 		const pass = new URLSearchParams(location.search)
@@ -78,7 +158,7 @@
 
 <div class="flex justify-center gap-4 mt-5 print:hidden">
 	<div class="">
-		<button class="bg-teal-500 text-white rounded-lg shadow-md shadow-teal-200 p-1" title="Saved link will be copied to clipboard" onclick={() => {
+		<button class="cursor-pointer bg-teal-500 text-white rounded-lg shadow-md shadow-teal-200 p-1" title="Saved link will be copied to clipboard" onclick={() => {
 			finish()
 		}}>
 			<!-- https://flowbite.com/icons/ floppy-disk -->
@@ -88,7 +168,7 @@
 		</button>
 	</div>
 	<div class="">
-		<button class="bg-teal-500 text-white rounded-lg shadow-md shadow-teal-200 p-1" title="Print" onclick={() => {
+		<button class="cursor-pointer bg-teal-500 text-white rounded-lg shadow-md shadow-teal-200 p-1" title="Print" onclick={() => {
 			print()
 		}}>
 			<!-- https://flowbite.com/icons/ printer -->
@@ -101,15 +181,18 @@
 		<input class="" type="color" bind:value={pen.theme}>
 	</div> -->
 	<div class="">
-		<select class="text-center text-teal-500 rounded-lg shadow-md appearance-none uppercase py-1 px-2 cursor-pointer" bind:value={pen.lang}>
+		<select class="text-center text-teal-500 rounded-lg shadow-md uppercase py-1 px-2 cursor-pointer font-bold bg-white appearance-none" bind:value={pen.lang}>
 			{#each Object.keys(bund) as value}
-				<option>{value}</option>
+				<option class="text-black">{value}</option>
 			{/each}
 		</select>
 	</div>
 </div>
 
-<div class="mt-5 print:hidden text-center">
+<div class="mt-5 print:hidden text-center px-4">
+	<div class="truncate">
+		<a class="text-teal-500" target="_top" href={savedUrl}>{savedUrl}</a>
+	</div>
 	Select text you want to edit then type directly.<br>
 	Click the logo to upload yours
 </div>
