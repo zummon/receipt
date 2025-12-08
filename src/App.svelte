@@ -82,6 +82,7 @@
 
   let pen = $state({
 		lang: 'en',
+		// theme: '',
     no: '20231027-001',
     date: 'October 27, 2023',
     from: 'Jane Doe',
@@ -94,9 +95,18 @@
 	let store = $state({
 		logo: '',
 	})
+	let tales = $state([{
+		no: '20231027-002',
+    date: 'October 27, 2023',
+    from: 'Mac Donel',
+    to: 'My company',
+		toAddress: '444 Globe, Anytown',
+    desc: 'Consultation Services',
+    amount: 80.00,
+	}])
 	let savedUrl = $state('')
 
-	let vat = $derived(pen.amount * (+pen.vat))
+	let vat = $derived(pen.amount * Number(pen.vat))
 	let total = $derived(pen.amount + vat)
 	let tape = $derived(bund[pen.lang] || bund.en)
 
@@ -128,15 +138,19 @@
 		}
 	}
 	function finish () {
-    const pass = new URLSearchParams()
-		for (const key in pen) {
-			let value = pen[key]
-			if (value) {
-				pass.append(key, value)
+		if (savedUrl) {
+			savedUrl = ''
+		} else {
+			const pass = new URLSearchParams()
+			for (const key in pen) {
+				let value = pen[key]
+				if (value) {
+					pass.append(key, value)
+				}
 			}
+			savedUrl = "https://codepen.io/zummon/full/ogvoyzN?" + pass.toString()
+			navigator.clipboard.writeText(savedUrl)
 		}
-		savedUrl = "https://codepen.io/zummon/full/ogvoyzN?" + pass.toString()
-    navigator.clipboard.writeText(savedUrl)
   }
 	onMount(() => {
 		const pass = new URLSearchParams(location.search)
@@ -144,7 +158,7 @@
 			let value = pass.get(key)
 			if (value) {
 				if (typeof pen[key] == 'number') {
-					value = +value
+					value = Number(value)
 				}
 				pen[key] = value
 			}
@@ -162,7 +176,7 @@
 			finish()
 		}}>
 			<!-- https://flowbite.com/icons/ floppy-disk -->
-			<svg class="w-[32px] h-[32px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+			<svg class="size-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
 				<path fill-rule="evenodd" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7.414A2 2 0 0 0 20.414 6L18 3.586A2 2 0 0 0 16.586 3H5Zm10 11a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7V5h8v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1Z" clip-rule="evenodd"/>
 			</svg>		
 		</button>
@@ -172,7 +186,7 @@
 			print()
 		}}>
 			<!-- https://flowbite.com/icons/ printer -->
-			<svg class="w-[32px] h-[32px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+			<svg class="size-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
 				<path fill-rule="evenodd" d="M8 3a2 2 0 0 0-2 2v3h12V5a2 2 0 0 0-2-2H8Zm-3 7a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h1v-4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v4h1a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5Zm4 11a1 1 0 0 1-1-1v-4h8v4a1 1 0 0 1-1 1H9Z" clip-rule="evenodd"/>
 			</svg>					
 		</button>
@@ -181,7 +195,7 @@
 		<input class="" type="color" bind:value={pen.theme}>
 	</div> -->
 	<div class="">
-		<select class="text-center text-teal-500 rounded-lg shadow-md uppercase py-1 px-2 cursor-pointer font-bold bg-white appearance-none" bind:value={pen.lang}>
+		<select class="text-center text-teal-500 rounded-lg shadow-md uppercase py-1 px-2 cursor-pointer font-bold bg-white appearance-none field-sizing-content" title="Change language" bind:value={pen.lang}>
 			{#each Object.keys(bund) as value}
 				<option class="text-black">{value}</option>
 			{/each}
@@ -190,9 +204,11 @@
 </div>
 
 <div class="mt-5 print:hidden text-center px-4">
-	<div class="truncate">
-		<a class="text-teal-500" target="_top" href={savedUrl}>{savedUrl}</a>
-	</div>
+	{#if savedUrl}
+		<div class="truncate">
+			<a class="text-teal-500" target="_top" href={savedUrl}>{savedUrl}</a>
+		</div>
+	{/if}
 	Select text you want to edit then type directly.<br>
 	Click the logo to upload yours
 </div>
@@ -239,7 +255,7 @@
       <span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
 				e.target.textContent = pen.amount
 			}} oninput={(e) => {
-				pen.amount = +e.target.textContent
+				pen.amount = Number(e.target.textContent)
 			}} onblur={(e) => {
 				e.target.textContent = money(pen.amount)
 			}}>{money(pen.amount)}</span>
@@ -251,7 +267,7 @@
       <span class="">{tape.tax} (<span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
 				e.target.textContent = pen.vat
 			}} oninput={(e) => {
-				pen.vat = +e.target.textContent
+				pen.vat = Number(e.target.textContent)
 			}} onblur={(e) => {
 				e.target.textContent = percent(pen.vat * 100)
 			}}>{percent(pen.vat * 100)}</span>):</span>
