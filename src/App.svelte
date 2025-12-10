@@ -143,13 +143,12 @@
 			let index = 0
 			for (const pen of pens) {
 				for (let key in pen) {
-					key = key + index
-					let value = pass[key]
+					let value = pen[key]
 					if (value) {
-						if (typeof pens[key] == 'number') {
+						if (typeof pens[0][key] == 'number') {
 							value = Number(value)
 						}
-						pass.append(key, value)
+						pass.append(key + index, value)
 					}
 				}
 				index += 1
@@ -179,7 +178,7 @@
 				key = key + index
 				let value = pass[key]
 				if (value) {
-					if (typeof pens[key] == 'number') {
+					if (typeof pens[0][key] == 'number') {
 						value = Number(value)
 					}
 					pens[index][key] = value
@@ -240,11 +239,11 @@
 	Click the logo to upload yours
 </div>
 
-<div class="flex flex-wrap justify-center gap-4" style='font-family: "Cabin", serif;'>
+<div class="flex flex-wrap justify-center items-center gap-6" style='font-family: "Cabin", serif;'>
 {#each pens as pen, index (index)}
 {@const vat = pen.amount * Number(tale.vat)}
 {@const total = pen.amount + vat}
-<div class="w-md p-6 bg-white rounded-lg shadow-md shadow-blue-200 border-t-8 border-blue-500">
+<div class="w-md p-6 bg-white rounded-lg shadow-md shadow-blue-200 border-t-8 border-blue-500 break-inside-avoid">
   <div class="mx-auto w-fit">
 		<label class="cursor-pointer" title="Upload your logo">
 			<input class="hidden" type="file" onchange={(e) => {
@@ -283,7 +282,7 @@
     </div>
     <div class="flex justify-between">
       <span class="">{tape.amount}:</span>
-      <span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
+      <span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable onfocus={(e) => {
 				e.currentTarget.textContent = pen.amount
 			}} oninput={(e) => {
 				pen.amount = Number(e.currentTarget.textContent)
@@ -318,6 +317,7 @@
   </div>
 </div>
 {/each}
+<div class="print:hidden">
 <button class="cursor-pointer" onclick={()=>{
 	pens.push({})
 }}>
@@ -326,4 +326,5 @@
 		<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
 	</svg>	
 </button>
+</div>
 </div>
