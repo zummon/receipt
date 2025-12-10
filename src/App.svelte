@@ -172,9 +172,10 @@
 				tale[key] = value
 			}
 		}
+		let count = Math.ceil((params.size - Object.keys(tale).length) / Object.keys(pens).length)
 		let index = 0
-		for (const pen of pens) {
-			for (let key in pen) {
+		for (const _ of Array.from({ length: count })) {
+			for (let key in pens[0]) {
 				key = key + index
 				let value = pass[key]
 				if (value) {
@@ -243,6 +244,15 @@
 {#each pens as pen, index (index)}
 {@const vat = pen.amount * Number(tale.vat)}
 {@const total = pen.amount + vat}
+<div class="relative">
+<button class="print:hidden cursor-pointer absolute text-pink-500 right-0 bg-white rounded-lg shadow-md" onclick={()=>{
+	pens.splice(index, 1)
+}}>
+	<!-- https://flowbite.com/icons/ close -->
+	<svg class="size-8" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+		<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+	</svg>
+</button>
 <div class="w-md p-6 bg-white rounded-lg shadow-md shadow-blue-200 border-t-8 border-blue-500 break-inside-avoid">
   <div class="mx-auto w-fit">
 		<label class="cursor-pointer" title="Upload your logo">
@@ -316,9 +326,10 @@
     <p class="text-blue-500 border-t border-blue-500 w-fit mx-auto pt-1">{tape.thank}</p>
   </div>
 </div>
+</div>
 {/each}
 <div class="print:hidden">
-<button class="cursor-pointer" onclick={()=>{
+<button class="cursor-pointer text-teal-500" onclick={()=>{
 	pens.push({})
 }}>
 	<!-- https://flowbite.com/icons/ plus -->
