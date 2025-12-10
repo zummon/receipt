@@ -80,39 +80,31 @@
 		}
 	}
 
-  let pen = $state({
-		lang: 'en',
-		// theme: '',
-    no: '20231027-001',
-    date: 'October 27, 2023',
-    from: 'Jane Doe',
-    to: 'My company',
-		toAddress: '123 Business Ave, Anytown',
-    desc: 'Consultation Services',
-    amount: 150.00,
-    vat: 0.07,
-  })
 	let store = $state({
 		logo: '',
 	})
-	let tales = $state([{
-		no: '20231027-002',
-    date: 'October 27, 2023',
-    from: 'Mac Donel',
-    to: 'My company',
+	let tale = $state({
+		lang: 'en',
+    vat: 0.07,
+		to: 'My company',
 		toAddress: '444 Globe, Anytown',
-    desc: 'Consultation Services',
-    amount: 80.00,
-	}])
+	})
+	let pens = $state([
+		{
+			no: '20231027-002',
+			date: 'October 27, 2023',
+			from: 'Mac Donel',
+			desc: 'Consultation Services',
+			amount: 80.00,
+		}
+	])
 	let savedUrl = $state('')
 
-	let vat = $derived(pen.amount * Number(pen.vat))
-	let total = $derived(pen.amount + vat)
-	let tape = $derived(bund[pen.lang] || bund.en)
+	let tape = $derived(bund[tale.lang] || bund.en)
 
 	function money (value) {
 		if (!isNaN(value)) {
-			value = value.toLocaleString(pen.lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+			value = value.toLocaleString(tale.lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 		}
 		return value
 	}
@@ -123,7 +115,7 @@
 		return value + '%'
 	}
 
-	function upload (e, ) {
+	function upload (e) {
 		const file = e.target.files[0];
 		if (file) {
 			const reader = new FileReader();
@@ -142,35 +134,70 @@
 			savedUrl = ''
 		} else {
 			const pass = new URLSearchParams()
-			for (const key in pen) {
-				let value = pen[key]
+			for (const key in tale) {
+				let value = tale[key]
 				if (value) {
 					pass.append(key, value)
 				}
+			}
+			let index = 0
+			for (const pen of pens) {
+				for (let key in pen) {
+					key = key + index
+					let value = pass[key]
+					if (value) {
+						if (typeof pens[key] == 'number') {
+							value = Number(value)
+						}
+						pass.append(key, value)
+					}
+				}
+				index += 1
 			}
 			savedUrl = "https://codepen.io/zummon/full/ogvoyzN?" + pass.toString()
 			navigator.clipboard.writeText(savedUrl)
 		}
   }
-	onMount(() => {
-		const pass = new URLSearchParams(location.search)
-		for (const key in pen) {
-			let value = pass.get(key)
+	function start () {
+		let pass = {}
+		const params = new URLSearchParams(location.search)
+		for (const [key, value] of params.entries()) {
+			pass[key] = value
+		}
+		for (const key in tale) {
+			let value = pass[key]
 			if (value) {
-				if (typeof pen[key] == 'number') {
+				if (typeof tale[key] == 'number') {
 					value = Number(value)
 				}
-				pen[key] = value
+				tale[key] = value
 			}
+		}
+		let index = 0
+		for (const pen of pens) {
+			for (let key in pen) {
+				key = key + index
+				let value = pass[key]
+				if (value) {
+					if (typeof pens[key] == 'number') {
+						value = Number(value)
+					}
+					pens[index][key] = value
+				}
+			}
+			index += 1
 		}
 		const logo = localStorage.getItem("logo")
 		if (logo) {
 			store.logo = logo
 		}
+	}
+	onMount(() => {
+		start()
 	})
 </script>
 
-<div class="flex justify-center gap-4 mt-5 print:hidden">
+<div class="flex flex-wrap justify-center gap-4 mt-5 print:hidden">
 	<div class="">
 		<button class="cursor-pointer bg-teal-500 text-white rounded-lg shadow-md shadow-teal-200 p-1" title="Saved link will be copied to clipboard" onclick={() => {
 			finish()
@@ -195,7 +222,7 @@
 		<input class="" type="color" bind:value={pen.theme}>
 	</div> -->
 	<div class="">
-		<select class="text-center text-teal-500 rounded-lg shadow-md uppercase py-1 px-2 cursor-pointer font-bold bg-white appearance-none field-sizing-content" title="Change language" bind:value={pen.lang}>
+		<select class="text-center text-teal-500 rounded-lg shadow-md uppercase py-1 px-2 cursor-pointer font-bold bg-white appearance-none field-sizing-content" title="Change language" bind:value={tale.lang}>
 			{#each Object.keys(bund) as value}
 				<option class="text-black">{value}</option>
 			{/each}
@@ -203,7 +230,7 @@
 	</div>
 </div>
 
-<div class="mt-5 print:hidden text-center px-4">
+<div class="mt-5 mb-3 print:hidden text-center px-4">
 	{#if savedUrl}
 		<div class="truncate">
 			<a class="text-teal-500" target="_top" href={savedUrl}>{savedUrl}</a>
@@ -213,7 +240,11 @@
 	Click the logo to upload yours
 </div>
 
-<div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md shadow-blue-200 mt-3 border-t-8 border-blue-500" style='font-family: "Cabin", serif;'>
+<div class="flex flex-wrap justify-center gap-4" style='font-family: "Cabin", serif;'>
+{#each pens as pen, index (index)}
+{@const vat = pen.amount * Number(tale.vat)}
+{@const total = pen.amount + vat}
+<div class="w-md p-6 bg-white rounded-lg shadow-md shadow-blue-200 border-t-8 border-blue-500">
   <div class="mx-auto w-fit">
 		<label class="cursor-pointer" title="Upload your logo">
 			<input class="hidden" type="file" onchange={(e) => {
@@ -229,8 +260,8 @@
       <p class="text-blue-500">#<span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.no}></span></p>
     </div>
     <div class="">
-      <h3 class="border-b-2 border-blue-500 font-semibold text-xl w-fit ml-auto bg-yellow-200 print:bg-transparent" contenteditable bind:textContent={pen.to}></h3>
-			<p class="text-sm bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.toAddress}></p>
+      <h3 class="border-b-2 border-blue-500 font-semibold text-xl w-fit ml-auto bg-yellow-200 print:bg-transparent" contenteditable bind:textContent={tale.to}></h3>
+			<p class="text-sm bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={tale.toAddress}></p>
     </div>
   </div>
 
@@ -253,11 +284,11 @@
     <div class="flex justify-between">
       <span class="">{tape.amount}:</span>
       <span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
-				e.target.textContent = pen.amount
+				e.currentTarget.textContent = pen.amount
 			}} oninput={(e) => {
-				pen.amount = Number(e.target.textContent)
+				pen.amount = Number(e.currentTarget.textContent)
 			}} onblur={(e) => {
-				e.target.textContent = money(pen.amount)
+				e.currentTarget.textContent = money(pen.amount)
 			}}>{money(pen.amount)}</span>
     </div>
   </div>
@@ -265,12 +296,12 @@
   <div class="font-medium">
     <div class="flex justify-between">
       <span class="">{tape.tax} (<span class="bg-yellow-200 print:bg-transparent" contenteditable onfocus={(e) => {
-				e.target.textContent = pen.vat
+				e.currentTarget.textContent = tale.vat
 			}} oninput={(e) => {
-				pen.vat = Number(e.target.textContent)
+				tale.vat = Number(e.currentTarget.textContent)
 			}} onblur={(e) => {
-				e.target.textContent = percent(pen.vat * 100)
-			}}>{percent(pen.vat * 100)}</span>):</span>
+				e.currentTarget.textContent = percent(tale.vat * 100)
+			}}>{percent(tale.vat * 100)}</span>):</span>
       <span class="">{money(vat)}</span>
     </div>
     <div class="flex justify-between font-bold text-lg mt-2">
@@ -286,4 +317,13 @@
     <p class="text-blue-500 border-t border-blue-500 w-fit mx-auto pt-1">{tape.thank}</p>
   </div>
 </div>
-
+{/each}
+<button class="cursor-pointer" onclick={()=>{
+	pens.push({})
+}}>
+	<!-- https://flowbite.com/icons/ plus -->
+	<svg class="size-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+		<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+	</svg>	
+</button>
+</div>
