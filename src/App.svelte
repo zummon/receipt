@@ -2,6 +2,7 @@
 	import { onMount } from "svelte"
 	const bund = {
 		en: {
+			family: '"Cabin", serif',
 			headline: 'Receipt',
 			date: 'Date',
 			from: 'Received From',
@@ -13,6 +14,7 @@
 			sign: "Signature",
 		},
 		th: {
+			family: '"Sarabun", sans-serif',
 			headline: 'ใบเสร็จรับเงิน',
 			date: 'วันที่',
 			from: 'รับเงินจาก',
@@ -84,6 +86,7 @@
 		logo: '',
 	})
 	let tale = $state({
+		theme: '#3b82f6',
 		lang: 'en',
     vat: 0.07,
 		to: 'My company',
@@ -100,7 +103,7 @@
 	])
 	let savedUrl = $state('')
 
-	let tape = $derived(bund[tale.lang] || bund.en)
+	let tape = $derived({ ...bund.en, ...bund[tale.lang] })
 
 	function money (value) {
 		if (!isNaN(value)) {
@@ -158,34 +161,25 @@
 		}
   }
 	function start () {
-		let pass = {}
 		const params = new URLSearchParams(location.search)
-		for (const [key, value] of params.entries()) {
-			pass[key] = value
-		}
-		for (const key in tale) {
-			let value = pass[key]
-			if (value) {
+		for (let [key, value] of params.entries()) {
+			if (tale[key]) {
 				if (typeof tale[key] == 'number') {
 					value = Number(value)
 				}
 				tale[key] = value
 			}
-		}
-		let count = Math.ceil((params.size - Object.keys(tale).length) / Object.keys(pens).length)
-		let index = 0
-		for (const _ of Array.from({ length: count })) {
-			for (let key in pens[0]) {
-				key = key + index
-				let value = pass[key]
-				if (value) {
-					if (typeof pens[0][key] == 'number') {
-						value = Number(value)
-					}
-					pens[index][key] = value
+			let slug = key.replace(/\d+$/, "")
+			let index = key.match(/\d+$/)?.[0]
+			if (pens[0][slug]) {
+				if (typeof pens[0][slug] == 'number') {
+					value = Number(value)
 				}
+				if (!pens[index]) {
+					pens[index] = {}
+				}
+				pens[index][slug] = value
 			}
-			index += 1
 		}
 		const logo = localStorage.getItem("logo")
 		if (logo) {
@@ -218,15 +212,15 @@
 			</svg>					
 		</button>
 	</div>
-	<!-- <div class="">
-		<input class="" type="color" bind:value={pen.theme}>
-	</div> -->
 	<div class="">
 		<select class="text-center text-teal-500 rounded-lg shadow-md uppercase py-1 px-2 cursor-pointer font-bold bg-white appearance-none field-sizing-content" title="Change language" bind:value={tale.lang}>
 			{#each Object.keys(bund) as value}
 				<option class="text-black">{value}</option>
 			{/each}
 		</select>
+	</div>
+	<div class="">
+		<input class="" type="color" bind:value={tale.theme}>
 	</div>
 </div>
 
@@ -240,7 +234,7 @@
 	Click the logo to upload yours
 </div>
 
-<div class="flex flex-wrap justify-center items-center gap-6" style='font-family: "Cabin", serif;'>
+<div class="flex flex-wrap justify-center items-center gap-6" style='font-family: {tape.family};'>
 {#each pens as pen, index (index)}
 {@const vat = pen.amount * Number(tale.vat)}
 {@const total = pen.amount + vat}
@@ -253,7 +247,7 @@
 		<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
 	</svg>
 </button>
-<div class="w-md p-6 bg-white rounded-lg shadow-md shadow-blue-200 border-t-8 border-blue-500 break-inside-avoid">
+<div class="w-md p-6 bg-white rounded-lg shadow-md border-t-8 break-inside-avoid" style="border-color: {tale.theme};">
   <div class="mx-auto w-fit">
 		<label class="cursor-pointer" title="Upload your logo">
 			<input class="hidden" type="file" onchange={(e) => {
@@ -266,10 +260,10 @@
 	<div class="flex justify-between items-center mb-4">
     <div>
       <h2 class="text-xl font-bold text-black">{tape.headline}</h2>
-      <p class="text-blue-500">#<span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.no}></span></p>
+      <p class="" style="color: {tale.theme};">#<span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.no}></span></p>
     </div>
     <div class="">
-      <h3 class="border-b-2 border-blue-500 font-semibold text-xl w-fit ml-auto bg-yellow-200 print:bg-transparent" contenteditable bind:textContent={tale.to}></h3>
+      <h3 class="border-b-2 font-semibold text-xl w-fit ml-auto bg-yellow-200 print:bg-transparent" style="border-color: {tale.theme};" contenteditable bind:textContent={tale.to}></h3>
 			<p class="text-sm bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={tale.toAddress}></p>
     </div>
   </div>
@@ -285,7 +279,7 @@
     </div>
   </div>
 
-  <div class="border-t border-b border-blue-400 py-3 my-3">
+  <div class="border-t border-b py-3 my-3" style="border-color: {tale.theme};">
     <div class="flex justify-between mb-1">
       <span class="">{tape.desc}:</span>
       <span class="bg-yellow-200 print:bg-transparent p-1 print:p-0" contenteditable bind:textContent={pen.desc}></span>
@@ -323,7 +317,7 @@
 		<p class="">{tape.sign}</p>
 		<br>
 		<br>
-    <p class="text-blue-500 border-t border-blue-500 w-fit mx-auto pt-1">{tape.thank}</p>
+    <p class="border-t w-fit mx-auto pt-1" style="color: {tale.theme}; border-color: {tale.theme};">{tape.thank}</p>
   </div>
 </div>
 </div>
