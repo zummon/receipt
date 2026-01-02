@@ -86,6 +86,13 @@
 			sign: "签名 (Qiānmíng)",
 		},
 	};
+	const penStruct = {
+		no: "20231027-002",
+		date: "October 27, 2023",
+		from: "Mac Donel",
+		desc: "Consultation Services",
+		amount: 80.0,
+	};
 
 	let store = $state({
 		logo: "",
@@ -97,15 +104,7 @@
 		to: "My company",
 		toAddress: "444 Globe, Anytown",
 	});
-	let pens = $state([
-		{
-			no: "20231027-002",
-			date: "October 27, 2023",
-			from: "Mac Donel",
-			desc: "Consultation Services",
-			amount: 80.0,
-		},
-	]);
+	let pens = $state([{ ...penStruct }]);
 	let savedUrl = $state("");
 
 	let tape = $derived({ ...bund.en, ...bund[tale.lang] });
@@ -128,20 +127,30 @@
 	}
 	function strToArr(str) {
 		let aoa = [];
-		let result = []
-		str.split("\n").forEach((row, rowindex) => {
-			aoa[rowindex] = [];
-			row.split("\t").forEach((col, colindex) => {
-				aoa[rowindex][colindex] = col;
+		let result = [];
+		if (str) {
+			str.split("\n").forEach((row, rowindex) => {
+				aoa[rowindex] = [];
+				row.split("\t").forEach((col, colindex) => {
+					aoa[rowindex][colindex] = col;
+				});
 			});
-		});
-		aoa.slice(1).forEach((row, rowindex)=>{
-			result[rowindex] = {}
-			aoa[0].forEach((key, colindex) => {
-				result[key] = row[colindex]
+			aoa.slice(1).forEach((row, rowindex) => {
+				result[rowindex] = {};
+				aoa[0].forEach((key, colindex) => {
+					if (penStruct[key]) {
+						if (typeof penStruct[key] == "number") {
+							result[rowindex][key] = Number(row[colindex]);
+						} else {
+							result[rowindex][key] = row[colindex];
+						}
+					}
+				});
 			});
-		})
-		pens = result;
+			pens = result;
+		} else {
+			pens[0] = { ...penStruct };
+		}
 	}
 
 	function upload(e) {
@@ -310,7 +319,16 @@
 
 <div class="mt-5 mb-3 print:hidden text-center px-4">
 	{#if true}
-		<textarea name="" id="" onchange={()=>{strToArr()}}></textarea>
+		<div class="">
+			<textarea
+				class="border w-full"
+				placeholder="no	date	from	desc	amount
+20231027-002	October 27, 2023	Mac Donel	Consultation Services	80.0"
+				onchange={(e) => {
+					strToArr(e.currentTarget.value);
+				}}
+			></textarea>
+		</div>
 	{/if}
 	{#if savedUrl}
 		<div class="truncate">
